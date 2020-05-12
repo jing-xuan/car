@@ -11,10 +11,17 @@
 
 #include "api.h"
 
+#define port "/dev/ttyUSB0"
+// 0x0013A200419A977D;
+//00 13 A2 00 41 9A 97 7D
+unsigned char addrRed[] = {0x00, 0x13, 0xA2, 0x00, 0x41, 0x9A, 0x97, 0x7D};
+unsigned char addrBlue[] = {0x00, 0x13, 0xA2, 0x00, 0x41, 0x9A, 0x9B, 0x5C};
+
+
 using namespace std;
 
 int main() {
-int serial_port = open("/dev/ttyUSB0", O_RDWR);
+int serial_port = open(port, O_RDWR);
 
 // Create new termios struc, we call it 'tty' for convention
 struct termios tty;
@@ -61,8 +68,9 @@ if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
 // unsigned char msgDec[] = {126, 0, 4, 8, 1, 68, 66, 112};
 // write(serial_port, &msg, sizeof(msg));
 
-getRSSI(serial_port);
+// getRSSI(serial_port);
 
+sendMsg(serial_port, addrBlue, (unsigned char *) "test", 4);
 
 close(serial_port);
 }
