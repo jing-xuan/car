@@ -68,6 +68,14 @@ getRSSI(serial_port);
 
 sendMsg(serial_port, addrBlue, (unsigned char *) "test", 4);
 
+packet* rcvPkt = waitforPacket(serial_port);
+
+cout << "received packet with frame type & payload: " << hex << int(rcvPkt->frameType) << endl;
+for (int i = 0; i < rcvPkt->len - 2; i++) {
+    cout << hex << int(rcvPkt->payload[i]) << endl;
+}
+free(rcvPkt->payload);
+free(rcvPkt);
 
 close(serial_port);
 }

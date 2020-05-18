@@ -127,6 +127,7 @@ void sendMsg (int serial_port, unsigned char addr[], unsigned char msg[], int ms
     cout << "sent message, used " << int(txStatus->payload[2]) << " retries, status is " << int(txStatus->payload[3]) << endl;
     free(txPkt);
     free(payload);
+    free(p);
 }
 
 uint8_t * readPacket (int serial_port) {
@@ -144,5 +145,16 @@ uint8_t * readPacket (int serial_port) {
         len += n;
     }
     return buf;
+}
+
+packet * waitforPacket(int serial_port) {
+    uint8_t * p = readPacket(serial_port);
+    packet *rcvPkt = new packet;
+    if (!verifyChecksum(p)) {
+        cout << "error with transmit status checksum" << endl;
+        return rcvPkt;
+    }
+    rcvPkt = deserialize(p);
+    return rcvPkt;  
 }
     
