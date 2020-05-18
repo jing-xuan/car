@@ -13,14 +13,6 @@ using namespace std;
 #define TX_REQUEST 0x10
 #define TX_STATUS 0x8B
 
-struct packet {
-    uint8_t offset = 0x7E;
-    uint16_t len;
-    uint8_t frameType;
-    uint8_t frameID;
-    unsigned char* payload;
-    uint8_t checksum;
-};
 
 void serialize (packet *pkt, uint8_t *q, int payloadLen) {
     *q = pkt->offset; q++;
@@ -41,7 +33,7 @@ packet * deserialize (uint8_t *data) {
     pkt->len = length;
     pkt->frameType = data[3];
     pkt->frameID = data[4];
-    pkt->payload = (unsigned char *)malloc(8 * (length - 2));
+    pkt->payload = (unsigned char *)malloc(length - 2);
     for (int i = 0; i < length - 2; i++) {
         pkt->payload[i] = data[5 + i];
     }
@@ -79,7 +71,7 @@ void getRSSI (int serial_port) {
     packet* testPkt = new packet;
     unsigned char cmd[] = "DB";
     makePkt(testPkt, AT_COMMAND, cmd, 2);
-    uint8_t *q = (uint8_t *)malloc(8*8);
+    uint8_t *q = (uint8_t *)malloc(8);
     serialize(testPkt, q, 2);
     write(serial_port, q, 64);
 
@@ -113,12 +105,12 @@ void sendMsg (int serial_port, unsigned char addr[], unsigned char msg[], int ms
     //sending message
     unsigned char stuff[] = {0xFF, 0xFE, 0x00, 0x00};
     packet * txPkt = new packet;
-    unsigned char *payload = (unsigned char *)malloc(8 * (msgLen + 12));
+    unsigned char *payload = (unsigned char *)malloc(msgLen + 12);
     memcpy(payload, addr, 8);
     memcpy((payload + 8), stuff, 4);
     memcpy((payload + 12), msg, (8 * msgLen));
     makePkt(txPkt, TX_REQUEST, payload, msgLen + 12);
-    uint8_t *q = (uint8_t *)malloc(8 * (msgLen + 12 + 4));
+    uint8_t *q = (uint8_t *)malloc(msgLen + 12 + 4);
     serialize(txPkt, q, msgLen + 12);
     write(serial_port, q, msgLen + 18);
     //reading transmit status
@@ -138,13 +130,19 @@ void sendMsg (int serial_port, unsigned char addr[], unsigned char msg[], int ms
 }
 
 uint8_t * readPacket (int serial_port) {
-    uint8_t *data = (uint8_t *)malloc(24);
-    read(serial_port, data, 24);
-    uint16_t length = uint16_t((data[1] << 8)) + uint16_t(data[2]);
-    data = (uint8_t *)realloc(data, 3+ length * 8);
-    data += 3;
-    read(serial_port, data, 8 * (length + 1));
-    data -= 3;
-    return data;
+    uint8_t *buf = (uint8_t *)malloc(3);;
+    int len = 0;
+    uint16_t length; 
+    while (len < 3) {
+        int n = read(serial_port, buf + len, 1);
+        len += n;
+    }
+    length = uint16_t((buf[1] << 8)) + uint16_t(buf[2]);
+    buf = (uint8_t *)realloc(buf, length + 4);
+    while (len < length + 4) {
+        int n = read(serial_port, buf + len, 1);
+        len += n;
+    }
+    return buf;
 }
     

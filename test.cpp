@@ -63,14 +63,11 @@ if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
     printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
 }
 
-// Write to serial port
-// char msg[] = {0x7E, 0x00, 0x04, 0x08, 0x01, 'D', 'B', 0x70};
-// unsigned char msgDec[] = {126, 0, 4, 8, 1, 68, 66, 112};
-// write(serial_port, &msg, sizeof(msg));
 
-// getRSSI(serial_port);
+getRSSI(serial_port);
 
 sendMsg(serial_port, addrBlue, (unsigned char *) "test", 4);
+
 
 close(serial_port);
 }
