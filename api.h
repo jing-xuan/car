@@ -15,7 +15,9 @@ packet * deserialize (uint8_t *data);
 
 void getRSSI(int serial_port);
 
-void sendLargeMsg(int serial_port, unsigned char addr[], unsigned char msg[], int msgLen);
+void sendLargeMsg(int serial_port, unsigned char addr[], unsigned char msg[], long msgLen);
+
+void testPayload(int serial_port, unsigned char addr[], uint64_t length);
 
 void sendMsg (int serial_port, unsigned char addr[], unsigned char msg[], int msgLen);
 

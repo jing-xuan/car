@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <bits/stdc++.h> 
 #include "api.h"
+#include <time.h>
 
 using namespace std;
 
@@ -134,7 +135,22 @@ void sendMsg (int serial_port, unsigned char addr[], unsigned char msg[], int ms
     free(q);
 }
 
-void sendLargeMsg(int serial_port, unsigned char addr[], unsigned char msg[], int msgLen) {
+void testPayload(int serial_port, unsigned char addr[], uint64_t length) {
+    uint64_t bytesSent = 0;
+    unsigned char *chunk = (unsigned char *)calloc(1, 80);
+    clock_t start = clock();
+    while(bytesSent < length) {
+        sendMsg(serial_port, addr, chunk, 80);
+        bytesSent += 80;
+        usleep(10000);
+    }
+    clock_t end = clock();
+    double timeSpent = double(end - start) / CLOCKS_PER_SEC;
+    cout << "Time spent: " << timeSpent << endl;
+    free(chunk);
+}
+
+void sendLargeMsg(int serial_port, unsigned char addr[], unsigned char msg[], long msgLen) {
     int bytesSent = 0;
     unsigned char *chunk = (unsigned char *)malloc(80);
     int len = 0;
