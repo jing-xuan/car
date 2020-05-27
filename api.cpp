@@ -108,7 +108,7 @@ void sendMsg (int serial_port, unsigned char addr[], unsigned char msg[], int ms
     unsigned char *payload = (unsigned char *)malloc(msgLen + 12);
     memcpy(payload, addr, 8);
     memcpy((payload + 8), stuff, 4);
-    memcpy((payload + 12), msg, (8 * msgLen));
+    memcpy((payload + 12), msg, (msgLen));
     makePkt(txPkt, TX_REQUEST, payload, msgLen + 12);
     uint8_t *q = (uint8_t *)malloc(msgLen + 12 + 4);
     serialize(txPkt, q, msgLen + 12);
@@ -125,9 +125,32 @@ void sendMsg (int serial_port, unsigned char addr[], unsigned char msg[], int ms
         return;
     }
     cout << "sent message, used " << int(txStatus->payload[2]) << " retries, status is " << int(txStatus->payload[3]) << endl;
+    free(txPkt->payload);
+    free(txStatus->payload);
     free(txPkt);
+    free(txStatus);
     free(payload);
     free(p);
+    free(q);
+}
+
+void sendLargeMsg(int serial_port, unsigned char addr[], unsigned char msg[], int msgLen) {
+    int bytesSent = 0;
+    unsigned char *chunk = (unsigned char *)malloc(80);
+    int len = 0;
+    while (bytesSent < msgLen) {
+        if (msgLen - bytesSent>= 80) {
+            memcpy(chunk, msg + bytesSent, 80);
+            bytesSent+= 80;
+            len = 80;
+        } else {
+            memcpy(chunk, msg + bytesSent, msgLen - bytesSent);
+            len = msgLen - bytesSent;
+            bytesSent = msgLen;
+        }
+        sendMsg(serial_port, addr, chunk, len);
+    }
+    free(chunk);
 }
 
 uint8_t * readPacket (int serial_port) {
@@ -151,7 +174,7 @@ packet * waitforPacket(int serial_port) {
     uint8_t * p = readPacket(serial_port);
     packet *rcvPkt = new packet;
     if (!verifyChecksum(p)) {
-        cout << "error with transmit status checksum" << endl;
+        cout << "error with packet checksum" << endl;
         return rcvPkt;
     }
     rcvPkt = deserialize(p);

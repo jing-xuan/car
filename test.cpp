@@ -68,14 +68,16 @@ getRSSI(serial_port);
 
 sendMsg(serial_port, addrBlue, (unsigned char *) "test", 4);
 
-packet* rcvPkt = waitforPacket(serial_port);
+sendLargeMsg(serial_port, addrBlue, (unsigned char *) "I am writing some nonsense. This is about 70 characters. Now it is finally one hundred characters...", 100);
 
-cout << "received packet with frame type & payload: " << hex << int(rcvPkt->frameType) << endl;
-for (int i = 0; i < rcvPkt->len - 2; i++) {
-    cout << hex << int(rcvPkt->payload[i]) << endl;
-}
-free(rcvPkt->payload);
-free(rcvPkt);
+// packet* rcvPkt = waitforPacket(serial_port);
+
+// cout << "received packet with frame type & payload: " << hex << int(rcvPkt->frameType) << endl;
+// for (int i = 0; i < rcvPkt->len - 2; i++) {
+//     cout << hex << int(rcvPkt->payload[i]) << endl;
+// }
+// free(rcvPkt->payload);
+// free(rcvPkt);
 
 close(serial_port);
 }
