@@ -55,24 +55,18 @@ tty.c_cc[VTIME] = 10;    // Wait for up to 1s (10 deciseconds), returning as soo
 tty.c_cc[VMIN] = 0;
 
 // Set in/out baud rate to be 9600
-cfsetispeed(&tty, B9600);
-cfsetospeed(&tty, B9600);
+cfsetispeed(&tty, B115200);
+cfsetospeed(&tty, B115200);
 
 // Save tty settings, also checking for error
 if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
     printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
 }
 
-// testPayload(serial_port, addrBlue, 800);
+testPayload(serial_port, addrBlue, 8000);
 // getRSSI(serial_port);
 
 // sendMsg(serial_port, addrBlue, (unsigned char *) "test", 4);
-for (int i = 0; i < 10; i++) {
-    //sendLargeMsg(serial_port, addrBlue, (unsigned char *) "I am writing some nonsense. This is about 70 characters. Now it is finally one hundred characters...", 100);
-    sendMsg(serial_port, addrBlue, (unsigned char *) "test", 4);
-    cout << i << endl;
-    sleep(1);
-}
 
 // packet* rcvPkt = waitforPacket(serial_port);
 

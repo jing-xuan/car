@@ -125,12 +125,11 @@ void sendMsg (int serial_port, unsigned char addr[], unsigned char msg[], int ms
         cout << "wrong frame type" << endl;
         return;
     }
-    cout << "sent message, used " << int(txStatus->payload[2]) << " retries, status is " << int(txStatus->payload[3]) << endl;
+    // cout << "sent message, used " << int(txStatus->payload[2]) << " retries, status is " << int(txStatus->payload[3]) << endl;
     free(txPkt->payload);
     free(txStatus->payload);
     free(txPkt);
     free(txStatus);
-    free(payload);
     free(p);
     free(q);
 }
