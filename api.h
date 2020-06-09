@@ -9,18 +9,24 @@ struct packet {
     uint8_t checksum;
 };
 
+extern int serial_port;
+
+void initialize(char * port);
+
 int verifyChecksum(uint8_t * data);
 
 packet * deserialize (uint8_t *data);
 
-void getRSSI(int serial_port);
+void getRSSI();
 
-void sendLargeMsg(int serial_port, unsigned char addr[], unsigned char msg[], long msgLen);
+void sendLargeMsg(unsigned char addr[], unsigned char msg[], int msgLen);
 
-void testPayload(int serial_port, unsigned char addr[], uint64_t length);
+void testPayload(unsigned char addr[], int length);
 
-void sendMsg (int serial_port, unsigned char addr[], unsigned char msg[], int msgLen);
+void sendMsg (unsigned char addr[], unsigned char msg[], int msgLen);
 
-uint8_t * readPacket(int serial_port);
+uint8_t * readPacket();
 
-packet * waitforPacket(int serial_port);
+packet * waitforPacket();
+
+void handlePacket(packet * pkt);
